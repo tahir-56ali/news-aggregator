@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y \
     unzip \
     git \
     curl \
+    vim \
+    cron \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
 # Install Composer
@@ -28,6 +30,13 @@ COPY ./backend .
 RUN composer install --no-scripts --no-interaction && \
     php artisan key:generate
 
+# Add the laravel scheduler to the crontab
+RUN echo "* * * * * cd /var/www && /usr/local/bin/php artisan schedule:run >> /var/log/cron.log 2>&1" | crontab -
+
+# Set vi as the default editor for crontab
+RUN echo "export EDITOR=vi" >> ~/.bashrc
+
 # Expose PHP-FPM on port 9000
-CMD ["php-fpm"]
+CMD ["sh", "-c", "cron && php-fpm"]
+
 EXPOSE 9000
