@@ -1,0 +1,24 @@
+# Use official Node.js 20 image
+FROM node:20-alpine
+
+# Set the working directory
+WORKDIR /app
+
+# Ensure the app directory is writable by the container
+#RUN mkdir -p /app/build && chmod -R 777 /app
+
+# Copy the package.json and package-lock.json first
+COPY ./frontend/package*.json ./
+
+# Install the project dependencies
+RUN npm install
+
+# Copy the rest of the application code
+COPY ./frontend .
+
+# Default to development mode
+ARG NODE_ENV=development
+ENV NODE_ENV $NODE_ENV
+
+# Conditionally install 'serve' only in production
+RUN if [ "$NODE_ENV" = "production" ]; then npm install -g serve; fi

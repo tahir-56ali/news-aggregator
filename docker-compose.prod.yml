@@ -1,0 +1,9 @@
+services:
+  news-aggregator-webserver:
+    volumes:
+      - ./docker/nginx/nginx.prod.conf:/etc/nginx/conf.d/default.conf  # Use production Nginx config
+
+  news-aggregator-frontend:
+    command: npm run build && serve -s build
+    environment:
+      - NODE_ENV=production

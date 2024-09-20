@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  news-aggregator-php:
+    build:
+      context: .
+      dockerfile: Dockerfile-php
+    container_name: laravel-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+      - /var/www/vendor
+    networks:
+      - news-network
+
+  news-aggregator-db:
+    image: mysql:8
+    container_name: mysql-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: news_aggregator
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - news-network
+
+  news-aggregator-webserver:
+    image: nginx:1.26.2-alpine
+    container_name: nginx-webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"   # React app on port 80
+      - "8080:8080"  # Laravel backend on port 8080
+    volumes:
+      - ./frontend:/var/www/frontend  # For React app
+      - ./backend:/var/www/backend    # Laravel app
+    depends_on:
+      - news-aggregator-php
+      - news-aggregator-frontend
+    networks:
+      - news-network
+
+  news-aggregator-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile-react
+    container_name: react-frontend
+    restart: unless-stopped
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - news-network
+
+networks:
+  news-network:
+    driver: bridge
+
+volumes:
+  dbdata:
