@@ -3,9 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return ['Laravel' => app()->version()];
 });
 
-Route::get('/api/test', function () {
-    return response()->json(['message' => 'Backend is working!!!!']);
-});
+require __DIR__.'/auth.php';
