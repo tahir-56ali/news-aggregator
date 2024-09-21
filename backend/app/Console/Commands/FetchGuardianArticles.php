@@ -48,7 +48,7 @@ class FetchGuardianArticles extends Command
                 'query' => [
                     'api-key' => $this->apiKey,
                     'show-fields' => 'headline,byline,thumbnail,body',
-                    'page-size' => 10, // Limit to 10 articles for now
+                    'page-size' => 20, // Limit to 20 articles for now
                     'order-by' => 'newest'
                 ]
             ]);
