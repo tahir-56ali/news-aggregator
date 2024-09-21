@@ -63,7 +63,7 @@ class FetchGuardianArticles extends Command
                             'title' => $articleData['fields']['headline'],
                             'author' => $articleData['fields']['byline'] ?? 'Unknown',
                             'image_url' => $articleData['fields']['thumbnail'] ?? null,
-                            'content' => htmlspecialchars_decode(strip_tags(stripslashes(trim($articleData['fields']['body'])))), // clean html tags etc.
+                            'article_url' => $articleData['webUrl'],
                             'source' => 'The Guardian',
                             'category' => $articleData['sectionName'],
                             'published_at' => Carbon::parse($articleData['webPublicationDate']),

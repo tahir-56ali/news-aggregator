@@ -55,9 +55,9 @@ class FetchNewsApiArticles extends Command
                     }
                     Article::insertOrIgnore([
                         'title' => $article['title'],
-                        'content' => $article['content'],
                         'author' => $article['author'] ?? 'Unknown',
                         'image_url' => $article['urlToImage'],
+                        'article_url' => $article['url'],
                         'source' => $article['source']['name'],
                         'category' => $category,
                         'published_at' => $article['publishedAt'],

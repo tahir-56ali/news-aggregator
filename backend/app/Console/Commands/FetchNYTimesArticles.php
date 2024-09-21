@@ -61,7 +61,7 @@ class FetchNYTimesArticles extends Command
                             'title' => $articleData['headline']['main'],
                             'author' => isset($articleData['byline']['original']) ? str_replace('By ', '', $articleData['byline']['original']) : 'Unknown',
                             'image_url' => isset($articleData['multimedia'][0]) ? 'https://www.nytimes.com/' . $articleData['multimedia'][0]['url'] : null,
-                            'content' => $articleData['lead_paragraph'] ?? 'No content available',
+                            'article_url' => $articleData['web_url'],
                             'source' => $articleData['source'] ?? 'New York Times',
                             'category' => $articleData['section_name'],
                             'published_at' => Carbon::parse($articleData['pub_date']),

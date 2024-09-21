@@ -13,6 +13,7 @@ class Article extends Model
         'content',
         'author',
         'image_url',
+        'article_url',
         'source',
         'category',
         'published_at',
@@ -24,8 +25,8 @@ class Article extends Model
 
     public static $rules = [
         'title' => 'required|string|unique:articles|max:255',
-        'content' => 'nullable|string',
         'image_url' => 'required|url',
+        'article_url' => 'required|url',
         'source' => 'required|string|max:255',
         'category' => 'required|string|max:255',
         'author' => 'required|string|max:255',
