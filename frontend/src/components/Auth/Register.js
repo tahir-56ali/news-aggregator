@@ -6,13 +6,16 @@ const Register = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [passwordConfirmation, setPasswordConfirmation] = useState('');
     const { register, error, loading } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await register(name, email, password);
-        navigate('/profile');
+        const result = await register(name, email, password, passwordConfirmation);
+        if (result.success) {
+            navigate('/profile');  // Redirect only if successful
+        }
     };
 
     return (
@@ -50,6 +53,17 @@ const Register = () => {
                         id="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="form-group mb-3">
+                    <label htmlFor="password">Confirm Password:</label>
+                    <input
+                        type="password"
+                        className="form-control"
+                        id="password_confirmation"
+                        value={passwordConfirmation}
+                        onChange={e => setPasswordConfirmation(e.target.value)}
                         required
                     />
                 </div>

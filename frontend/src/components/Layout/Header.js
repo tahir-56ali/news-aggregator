@@ -1,7 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import useAuth from '../../hooks/useAuth';
+import useLogout from '../../hooks/useLogout';
 
 const Header = () => {
+    const { user } = useAuth();  // Check if user is authenticated
+    const handleLogout = useLogout();
+
     return (
         <header className="bg-light p-3 mb-4">
             <div className="container">
@@ -12,15 +17,26 @@ const Header = () => {
                     </button>
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto"> {/* Replaced ml-auto with ms-auto */}
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/login">Login</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/register">Register</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/profile">Profile</Link>
-                            </li>
+                            {!user && (  // Show Login and Register links if user is not logged in
+                                <>
+                                    <li className="nav-item">
+                                        <Link className="nav-link" to="/login">Login</Link>
+                                    </li>
+                                    <li className="nav-item">
+                                        <Link className="nav-link" to="/register">Register</Link>
+                                    </li>
+                                </>
+                            )}
+                            {user && (  // Show Profile link if user is logged in
+                                <>
+                                    <li className="nav-item">
+                                        <Link className="nav-link" to="/profile">Profile</Link>
+                                    </li>
+                                    <li className="nav-item">
+                                        <span className="nav-link" role="button" onClick={handleLogout}>Logout</span>
+                                    </li>
+                                </>
+                            )}
                         </ul>
                     </div>
                 </nav>

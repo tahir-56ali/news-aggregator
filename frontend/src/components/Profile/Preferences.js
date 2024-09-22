@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const Preferences = () => {
     const [preferences, setPreferences] = useState({
@@ -37,14 +38,14 @@ const Preferences = () => {
     }, []);
 
     const handleChange = (e) => {
-        const { name, value, checked } = e.target;
+        const {name, value, checked} = e.target;
 
         setPreferences((prevPreferences) => {
             const newValue = checked
                 ? [...prevPreferences[name], value]
                 : prevPreferences[name].filter((item) => item !== value);
 
-            return { ...prevPreferences, [name]: newValue };
+            return {...prevPreferences, [name]: newValue};
         });
     };
 
@@ -52,6 +53,7 @@ const Preferences = () => {
         e.preventDefault();
         setLoading(true);
         try {
+            axios.defaults.headers.common['X-XSRF-TOKEN'] = Cookies.get('XSRF-TOKEN');
             await axios.post('http://localhost:8080/api/user/preferences', preferences);
             setMessage('Preferences saved successfully!');
         } catch (err) {
@@ -62,72 +64,83 @@ const Preferences = () => {
     };
 
     return (
-        <div>
-            <h2>Set Your News Preferences</h2>
+        <div className="container mt-4">
+            <h2 className="text-center mb-4 text-primary fw-bold">Set Your News Preferences</h2>
+
             <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label>Preferred Sources</label>
-                    {availableSources.map((source) => (
-                        <div key={source} className="form-check">
-                            <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id={source}
-                                name="preferred_sources"
-                                value={source}
-                                checked={preferences.preferred_sources.includes(source)}
-                                onChange={handleChange}
-                            />
-                            <label className="form-check-label" htmlFor={source}>
-                                {source}
-                            </label>
+                <div className="row mb-4">
+                    <div className="col-md-4">
+                        <h5 className="fw-bold text-secondary">Preferred Sources</h5>
+                        <div className="form-check">
+                            {availableSources.map((source, index) => (
+                                <div key={index} className="mb-2">
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        value={source}
+                                        id={source}
+                                        name="preferred_sources"
+                                        checked={preferences.preferred_sources.includes(source)}
+                                        onChange={handleChange}
+                                    />
+                                    <label className="form-check-label" htmlFor={source}>
+                                        {source}
+                                    </label>
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                    </div>
+
+                    <div className="col-md-4">
+                        <h5 className="fw-bold text-secondary">Preferred Categories</h5>
+                        <div className="form-check">
+                            {availableCategories.map((category, index) => (
+                                <div key={index} className="mb-2">
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        value={category}
+                                        id={category}
+                                        name="preferred_categories"
+                                        checked={preferences.preferred_categories.includes(category)}
+                                        onChange={handleChange}
+                                    />
+                                    <label className="form-check-label" htmlFor={category}>
+                                        {category}
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="col-md-4">
+                        <h5 className="fw-bold text-secondary">Preferred Authors</h5>
+                        <div className="form-check">
+                            {availableAuthors.map((author, index) => (
+                                <div key={index} className="mb-2">
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        value={author}
+                                        id={author}
+                                        name="preferred_authors"
+                                        checked={preferences.preferred_authors.includes(author)}
+                                        onChange={handleChange}
+                                    />
+                                    <label className="form-check-label" htmlFor={author}>
+                                        {author}
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
-                <div className="form-group">
-                    <label>Preferred Categories</label>
-                    {availableCategories.map((category) => (
-                        <div key={category} className="form-check">
-                            <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id={category}
-                                name="preferred_categories"
-                                value={category}
-                                checked={preferences.preferred_categories.includes(category)}
-                                onChange={handleChange}
-                            />
-                            <label className="form-check-label" htmlFor={category}>
-                                {category}
-                            </label>
-                        </div>
-                    ))}
+                <div className="text-center mb-4">
+                    <button type="submit" className="btn btn-primary px-4 py-2 fw-bold" disabled={loading}>
+                        {loading ? 'Saving...' : 'Save Preferences'}
+                    </button>
                 </div>
-
-                <div className="form-group">
-                    <label>Preferred Authors</label>
-                    {availableAuthors.map((author) => (
-                        <div key={author} className="form-check">
-                            <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id={author}
-                                name="preferred_authors"
-                                value={author}
-                                checked={preferences.preferred_authors.includes(author)}
-                                onChange={handleChange}
-                            />
-                            <label className="form-check-label" htmlFor={author}>
-                                {author}
-                            </label>
-                        </div>
-                    ))}
-                </div>
-
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                    {loading ? 'Saving...' : 'Save Preferences'}
-                </button>
             </form>
 
             {message && <p className="mt-3">{message}</p>}

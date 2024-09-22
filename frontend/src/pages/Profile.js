@@ -1,13 +1,11 @@
 import React from 'react';
 import useAuth from '../hooks/useAuth';
+import useLogout from '../hooks/useLogout';
 import Preferences from '../components/Profile/Preferences';
 
 const Profile = () => {
-    const { user, logout } = useAuth();
-
-    const handleLogout = () => {
-        logout();
-    };
+    const { user } = useAuth();
+    const handleLogout = useLogout();
 
     return (
         <div className="container">

@@ -167,7 +167,7 @@ const ArticleList = () => {
                     <p>Loading articles...</p>
                 ) : articles.length > 0 ? (
                     articles.map((article) => (
-                        <div className="col-md-4 mb-3" key={article.id}>
+                        <div className="col-12 col-md-4 mb-3" key={article.id}>
                             <div className="card h-100">
                                 {article.image_url && (
                                     <img src={article.image_url} className="card-img-top img-fluid"
@@ -175,7 +175,10 @@ const ArticleList = () => {
                                 )}
                                 <div className="card-body d-flex flex-column">
                                     <h5 className="card-title">{article.title}</h5>
-                                    <p className="card-text flex-grow-1">{article.description}</p>
+                                    <p className="card-text">
+                                        <small className="text-muted">By: {article.author}</small><br />
+                                        <small className="text-muted">Category: {article.category}</small>
+                                    </p>
                                     <p className="card-text">
                                         <small
                                             className="text-muted">{article.source} | {new Date(article.published_at).toLocaleDateString()}</small>

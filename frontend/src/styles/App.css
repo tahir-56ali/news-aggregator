@@ -90,6 +90,7 @@ form {
 
 footer p {
   margin-top: auto;
+  margin-bottom: 0 !important;
 }
 
 .pagination .page-item.active .page-link {

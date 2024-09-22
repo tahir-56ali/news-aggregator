@@ -11,6 +11,6 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote')->hourly();
 
-Schedule::command(FetchNewsApiArticles::class)->hourly();
-Schedule::command(FetchGuardianArticles::class)->hourly();
-Schedule::command(FetchNYTimesArticles::class)->hourly();
+//Schedule::command(FetchNewsApiArticles::class)->hourly();
+//Schedule::command(FetchGuardianArticles::class)->hourly();
+//Schedule::command(FetchNYTimesArticles::class)->hourly();
