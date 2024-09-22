@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
-use App\Models\UserPreference;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class ArticleController extends Controller
@@ -29,8 +30,8 @@ class ArticleController extends Controller
             $query->whereDate('published_at', $request->date);
         }
 
-        // Paginate the results (10 results per page by default)
-        $articles = $query->orderBy('published_at', 'desc')->paginate(12); // 12 items per page
+        // Paginate the results (12 results per page by default)
+        $articles = $query->orderBy('published_at', 'desc')->paginate(12);
 
         return response()->json($articles);
     }
@@ -42,36 +43,46 @@ class ArticleController extends Controller
         $preferences = $user->preferences; // Get user preferences
 
         if (!$preferences) {
-            return response()->json(['message' => 'No preferences set'], 400);
+            return response()->json(['message' => 'No preferences set, Please set your preferences under Profile page'], 400);
         }
 
         // Fetch articles based on preferences
         $articles = Article::query();
 
-        if ($preferences->categories) {
-            $articles->whereIn('category', $preferences->categories);
+        $preferred_categories = json_decode($preferences->preferred_categories, true) ?? [];
+        $preferred_sources = json_decode($preferences->preferred_sources, true) ?? [];
+        $preferred_authors = json_decode($preferences->preferred_authors, true) ?? [];
+
+        if (empty($preferred_categories) && empty($preferred_sources) && empty($preferred_authors)) {
+            return response()->json(['message' => 'No preferences set. Please set your preferences on the Profile page.'], 400);
         }
 
-        if ($preferences->sources) {
-            $articles->whereIn('source', $preferences->sources);
+        if ($preferred_categories) {
+            $articles->orWhereIn('category', $preferred_categories);
         }
 
-        if ($preferences->authors) {
-            $articles->whereIn('author', $preferences->authors);
+        if ($preferred_sources) {
+            $articles->orWhereIn('source', $preferred_sources);
         }
 
-        $personalizedArticles = $articles->get();
+        if ($preferred_authors) {
+            $articles->orWhereIn('author', $preferred_authors);
+        }
 
-        return response()->json($personalizedArticles, 200);
+        // Paginate the results (12 results per page by default)
+        $personalizedArticles = $articles->orderBy('published_at', 'desc')->paginate(12);
+
+        return response()->json($personalizedArticles);
     }
 
     // Fetch available sources
     public function getSources()
     {
-        $sources = Article::select('source')
+        $sources = Article::select('source', DB::raw('MAX(published_at) as latest_published_at'))
             ->whereNotNull('source')
             ->where('source', '!=', '')
-            ->distinct()
+            ->groupBy('source')
+            ->orderBy('latest_published_at', 'desc')
             ->pluck('source');
         return response()->json($sources, 200);
     }
@@ -79,10 +90,11 @@ class ArticleController extends Controller
     // Fetch available categories
     public function getCategories()
     {
-        $categories = Article::select('category')
+        $categories = Article::select('category', DB::raw('MAX(published_at) as latest_published_at'))
             ->whereNotNull('category')
             ->where('category', '!=', '')
-            ->distinct()
+            ->groupBy('category')
+            ->orderBy('latest_published_at', 'desc')
             ->pluck('category');
         return response()->json($categories, 200);
     }
@@ -90,10 +102,11 @@ class ArticleController extends Controller
     // Fetch available authors
     public function getAuthors()
     {
-        $authors = Article::select('author')
+        $authors = Article::select('author', DB::raw('MAX(published_at) as latest_published_at'))
             ->whereNotNull('author')
             ->where('author', '!=', '')
-            ->distinct()
+            ->groupBy('author')
+            ->orderBy('latest_published_at', 'desc')
             ->pluck('author');
         return response()->json($authors, 200);
     }

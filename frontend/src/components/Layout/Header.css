@@ -1,0 +1,69 @@
+/* Header styles */
+.vibrant-header {
+    padding: 1rem 2rem;
+    background-color: #007bff; /* Vibrant blue background */
+    color: #fff;
+    font-family: 'Montserrat', sans-serif; /* Modern font */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.vibrant-header .container {
+    display: flex;                    /* Flexbox for alignment */
+    justify-content: space-between;   /* Space between logo and hamburger */
+    align-items: center;              /* Vertically align items */
+}
+
+.vibrant-title {
+    font-size: 1.75rem;  /* Larger size for wider screens */
+    font-weight: 700;
+    color: #ffffff;  /* White text for contrast */
+    letter-spacing: 1px;
+    transition: color 0.3s ease;
+}
+
+.vibrant-title:hover {
+    color: #ffeb3b; /* Hover effect - yellow */
+}
+
+.navbar-toggler {
+    border: none;
+    background-color: #ffeb3b;  /* Button toggle background */
+    margin-left: auto;          /* Ensure hamburger stays on the right */
+}
+
+.vibrant-link {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #ffffff;
+    margin-right: 1rem;
+    transition: color 0.3s ease;
+}
+
+.vibrant-link:hover {
+    color: #ffeb3b;  /* Hover effect - yellow */
+}
+
+.navbar-nav {
+    flex-grow: 1;                   /* Allow navbar to take full width */
+    justify-content: flex-end;       /* Keep navbar items aligned to the right */
+}
+
+.navbar-nav .nav-item {
+    margin-right: 1rem;
+}
+
+/* Adjustments for smaller screens */
+@media (max-width: 992px) {
+    .vibrant-title {
+        font-size: 1.5rem;  /* Smaller logo size for mobile screens */
+    }
+
+    .navbar-nav .nav-item {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+
+    .navbar-nav {
+        text-align: center;
+    }
+}

@@ -8,7 +8,7 @@ const useLogout = () => {
     const handleLogout = async () => {
         const result = await logout();
         if (result && result.success) {
-            navigate('/');
+            navigate('/login');
         }
     };
 

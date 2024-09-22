@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useAuth } from '../../hooks/useAuth';
 
 const ArticleList = () => {
+    const { user } = useAuth();  // Check if the user is logged in
     const [articles, setArticles] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -22,16 +24,26 @@ const ArticleList = () => {
         setError(null);
 
         try {
-            const response = await axios.get('http://localhost:8080/api/articles', {
-                params: { ...searchParams, page }, // Include the current page in the request
-            });
+            let response;
+
+            // Fetch personalized news if user is logged in
+            if (user) {
+                response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/user/articles/personalized`, {
+                    params: { ...searchParams, page }, // Include the current page in the request
+                });
+            } else {
+                response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/articles`, {
+                    params: { ...searchParams, page }, // Include the current page in the request
+                });
+            }
+            console.log(response.data.data);
             setArticles(response.data.data);
             setTotalPages(response.data.last_page);
             setCurrentPage(response.data.current_page);
             setNextPageUrl(response.data.next_page_url);
             setPrevPageUrl(response.data.prev_page_url);
         } catch (err) {
-            setError('Error fetching articles. Please try again.');
+            setError(err.response?.data?.message || 'Error fetching articles. Please try again.');
         } finally {
             setLoading(false);
         }

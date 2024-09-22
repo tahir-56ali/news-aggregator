@@ -16,7 +16,8 @@ Route::get('/user/articles', [ArticleController::class, 'userArticles'])->middle
 // User preference routes
 Route::get('/user/preferences', [UserPreferenceController::class, 'getPreferences'])->middleware('auth:sanctum');
 Route::post('/user/preferences', [UserPreferenceController::class, 'setPreferences'])->middleware('auth:sanctum');
-Route::get('/user/articles/personalized', [ArticleController::class, 'getPersonalizedArticles'])->middleware('auth:sanctum');
+Route::get('/user/articles/personalized', [ArticleController::class, 'getPersonalizedArticles']);
+    //->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/sources', [ArticleController::class, 'getSources']);

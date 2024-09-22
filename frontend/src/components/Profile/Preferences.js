@@ -65,9 +65,15 @@ const Preferences = () => {
 
     return (
         <div className="container mt-4">
-            <h2 className="text-center mb-4 text-primary fw-bold">Set Your News Preferences</h2>
 
             <form onSubmit={handleSubmit}>
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h2 className="text-primary fw-bold">Set Your News Preferences</h2>
+                    <button type="submit" className="btn btn-primary px-4 py-2 fw-bold" disabled={loading}>
+                        {loading ? 'Saving...' : 'Save Preferences'}
+                    </button>
+                </div>
+                {message && <p className="mt-3">{message}</p>}
                 <div className="row mb-4">
                     <div className="col-md-4">
                         <h5 className="fw-bold text-secondary">Preferred Sources</h5>
@@ -135,15 +141,7 @@ const Preferences = () => {
                         </div>
                     </div>
                 </div>
-
-                <div className="text-center mb-4">
-                    <button type="submit" className="btn btn-primary px-4 py-2 fw-bold" disabled={loading}>
-                        {loading ? 'Saving...' : 'Save Preferences'}
-                    </button>
-                </div>
             </form>
-
-            {message && <p className="mt-3">{message}</p>}
         </div>
     );
 };
