@@ -86,7 +86,7 @@ const ArticleList = () => {
     useEffect(() => {
         fetchArticles(currentPage, searchParams); // Fetch articles on component load or page change
         fetchOptions();
-    }, [currentPage, fetchArticles, searchParams]);
+    }, [currentPage, fetchArticles, searchParams, fetchOptions]);
 
     const handlePageChange = (url) => {
         if (url) {
