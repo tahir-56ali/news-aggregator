@@ -225,10 +225,11 @@ const ArticleList = () => {
                         <div className="col-12 col-md-4 mb-3" key={article.id}>
                             <div className="card h-100">
                                 <img
-                                    src={article.image_url || defaultImage}  // Use default image if image_url is empty
+                                    src={article.image_url || defaultImage}
                                     className="card-img-top img-fluid"
                                     alt={article.title}
                                     onError={(e) => { e.target.src = defaultImage; }}  // Handle broken images
+                                    loading="lazy"  // Lazy loading for better performance
                                 />
                                 <div className="card-body d-flex flex-column">
                                     <h5 className="card-title">{article.title}</h5>
