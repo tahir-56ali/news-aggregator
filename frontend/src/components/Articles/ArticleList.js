@@ -62,7 +62,7 @@ const ArticleList = () => {
         }
     }, [user]);
 
-    const fetchOptions = async () => {
+    const fetchOptions = useCallback(async () => {
         let sources;
         let categories;
         let authors;
@@ -81,12 +81,12 @@ const ArticleList = () => {
         setAvailableSources(sources.data);
         setAvailableCategories(categories.data);
         setavailableAuthors(authors.data);
-    };
+    }, [user]);
 
     useEffect(() => {
         fetchArticles(currentPage, searchParams); // Fetch articles on component load or page change
         fetchOptions();
-    }, [currentPage, fetchArticles, searchParams]);
+    }, [currentPage, fetchArticles, searchParams, fetchOptions]);
 
     const handlePageChange = (url) => {
         if (url) {
