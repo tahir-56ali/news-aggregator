@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }) => {
             axios.defaults.headers.common['X-XSRF-TOKEN'] = Cookies.get('XSRF-TOKEN');
 
             // Step 2: Make the registration request
-            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/register`, {
+            await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/register`, {
                 name,
                 email,
                 password,

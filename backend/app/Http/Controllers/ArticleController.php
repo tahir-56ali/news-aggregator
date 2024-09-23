@@ -57,17 +57,17 @@ class ArticleController extends Controller
             return response()->json(['message' => 'No preferences set. Please set your preferences on the Profile page.'], 400);
         }
 
-        if ($preferred_categories) {
-            $articles->orWhereIn('category', $preferred_categories);
-        }
-
-        if ($preferred_sources) {
-            $articles->orWhereIn('source', $preferred_sources);
-        }
-
-        if ($preferred_authors) {
-            $articles->orWhereIn('author', $preferred_authors);
-        }
+        $articles->where(function ($query) use ($preferred_categories, $preferred_sources, $preferred_authors) {
+            if ($preferred_categories) {
+                $query->orWhereIn('category', $preferred_categories);
+            }
+            if ($preferred_sources) {
+                $query->orWhereIn('source', $preferred_sources);
+            }
+            if ($preferred_authors) {
+                $query->orWhereIn('author', $preferred_authors);
+            }
+        });
 
         if (!empty($request->get('keyword'))) {
             $articles->where('title', 'like', '%' . $request->keyword . '%');
@@ -85,6 +85,8 @@ class ArticleController extends Controller
             $articles->whereDate('published_at', $request->date);
         }
 
+        //return $articles->toSql();
+        //return $articles->getBindings();
         // Paginate the results (12 results per page by default)
         $personalizedArticles = $articles->orderBy('published_at', 'desc')->paginate(12);
 

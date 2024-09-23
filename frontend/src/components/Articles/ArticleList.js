@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -22,7 +22,7 @@ const ArticleList = () => {
     const [availableSources, setAvailableSources] = useState([]);
     const [availableCategories, setAvailableCategories] = useState([]);
 
-    const fetchArticles = async (page = 1, params = searchParams) => {
+    const fetchArticles = useCallback(async (page = 1, params = searchParams) => {
         setLoading(true);
         setError(null);
 
@@ -50,7 +50,7 @@ const ArticleList = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [searchParams, user]);
 
     const fetchOptions = async () => {
         const sources = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/sources`);
@@ -63,7 +63,7 @@ const ArticleList = () => {
     useEffect(() => {
         fetchArticles(currentPage); // Fetch articles on component load or page change
         fetchOptions();
-    }, [currentPage]);
+    }, [currentPage, fetchArticles]);
 
     const handlePageChange = (url) => {
         if (url) {
