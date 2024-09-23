@@ -26,6 +26,10 @@ class ArticleController extends Controller
             $query->where('source', $request->source);
         }
 
+        if (!empty($request->get('author'))) {
+            $query->where('author', $request->author);
+        }
+
         if (!empty($request->get('date'))) {
             $query->whereDate('published_at', $request->date);
         }
@@ -81,6 +85,10 @@ class ArticleController extends Controller
             $articles->where('source', $request->source);
         }
 
+        if (!empty($request->get('author'))) {
+            $articles->where('author', $request->author);
+        }
+
         if (!empty($request->get('date'))) {
             $articles->whereDate('published_at', $request->date);
         }
@@ -96,36 +104,66 @@ class ArticleController extends Controller
     // Fetch available sources
     public function getSources()
     {
-        $sources = Article::select('source', DB::raw('MAX(published_at) as latest_published_at'))
-            ->whereNotNull('source')
-            ->where('source', '!=', '')
-            ->groupBy('source')
-            ->orderBy('latest_published_at', 'desc')
-            ->pluck('source');
+        $sources = $this->getPreferencesBy('source');
         return response()->json($sources, 200);
     }
 
     // Fetch available categories
     public function getCategories()
     {
-        $categories = Article::select('category', DB::raw('MAX(published_at) as latest_published_at'))
-            ->whereNotNull('category')
-            ->where('category', '!=', '')
-            ->groupBy('category')
-            ->orderBy('latest_published_at', 'desc')
-            ->pluck('category');
+        $categories = $this->getPreferencesBy('category');
         return response()->json($categories, 200);
     }
 
     // Fetch available authors
     public function getAuthors()
     {
-        $authors = Article::select('author', DB::raw('MAX(published_at) as latest_published_at'))
-            ->whereNotNull('author')
-            ->where('author', '!=', '')
-            ->groupBy('author')
-            ->orderBy('latest_published_at', 'desc')
-            ->pluck('author');
+        $authors = $this->getPreferencesBy('author');
         return response()->json($authors, 200);
     }
+
+    // Fetch available sources
+    public function getUserSources()
+    {
+        $userSources = $this->getPersonalizedPreferencesBy('preferred_sources');
+        return response()->json($userSources, 200);
+    }
+
+    // Fetch available categories
+    public function getUserCategories()
+    {
+        $userCategories = $this->getPersonalizedPreferencesBy('preferred_categories');
+        return response()->json($userCategories, 200);
+    }
+
+    // Fetch available authors
+    public function getUserAuthors()
+    {
+        $userAuthors = $this->getPersonalizedPreferencesBy('preferred_authors');
+        return response()->json($userAuthors, 200);
+    }
+
+    protected function getPreferencesBy($type)
+    {
+        return Article::select($type, DB::raw('MAX(published_at) as latest_published_at'))
+            ->whereNotNull($type)
+            ->where($type, '!=', '')
+            ->groupBy($type)
+            ->orderBy('latest_published_at', 'desc')
+            ->pluck($type);
+    }
+
+    protected function getPersonalizedPreferencesBy($type)
+    {
+        $user = Auth::user();
+        $preferences = $user->preferences; // Get user preferences
+
+        if (!$preferences) {
+            return response()->json(['data' => []], 400);
+        }
+
+        return json_decode($preferences->$type, true) ?? [];
+    }
+
+
 }

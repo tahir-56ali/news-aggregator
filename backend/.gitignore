@@ -5,7 +5,11 @@
 /public/storage
 /storage/*.key
 /vendor
-.env
+
+# Temporarily removed .env from .gitignore for easier setup during testing.
+# Be aware: the .env file should not be committed to production repositories.
+#.env
+
 .env.backup
 .env.production
 .phpactor.json

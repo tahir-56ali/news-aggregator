@@ -16,13 +16,23 @@ const ArticleList = () => {
         keyword: '',
         category: '',
         source: '',
+        author: '',
         date: '',
         page: 1, // Set default page as 1
     });
+    const [formState, setFormState] = useState({
+        keyword: '',
+        category: '',
+        source: '',
+        author: '',
+        date: '',
+        page: 1,
+    });
     const [availableSources, setAvailableSources] = useState([]);
     const [availableCategories, setAvailableCategories] = useState([]);
+    const [availableAuthors, setavailableAuthors] = useState([]);
 
-    const fetchArticles = useCallback(async (page = 1, params = searchParams) => {
+    const fetchArticles = useCallback(async (page = 1, params) => {
         setLoading(true);
         setError(null);
 
@@ -50,20 +60,33 @@ const ArticleList = () => {
         } finally {
             setLoading(false);
         }
-    }, [searchParams, user]);
+    }, [user]);
 
     const fetchOptions = async () => {
-        const sources = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/sources`);
-        const categories = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/categories`);
+        let sources;
+        let categories;
+        let authors;
+
+        // Fetch user's sources, categories and authors
+        if (user) {
+            sources = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/user/sources`);
+            categories = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/user/categories`);
+            authors = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/user/authors`);
+        } else {
+            sources = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/sources`);
+            categories = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/categories`);
+            authors = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/authors`);
+        }
 
         setAvailableSources(sources.data);
         setAvailableCategories(categories.data);
+        setavailableAuthors(authors.data);
     };
 
     useEffect(() => {
-        fetchArticles(currentPage); // Fetch articles on component load or page change
+        fetchArticles(currentPage, searchParams); // Fetch articles on component load or page change
         fetchOptions();
-    }, [currentPage, fetchArticles]);
+    }, [currentPage, fetchArticles, searchParams]);
 
     const handlePageChange = (url) => {
         if (url) {
@@ -76,7 +99,8 @@ const ArticleList = () => {
     const handleSearch = async (e) => {
         e.preventDefault();
         setCurrentPage(1); // Reset to first page when searching
-        fetchArticles(1); // Fetch articles with the updated search params from the first page
+        setSearchParams(formState);  // Update searchParams when Search button is clicked
+        fetchArticles(1, formState); // Fetch articles with the updated search params from the first page
     };
 
     // Handle Clear Filters
@@ -86,11 +110,13 @@ const ArticleList = () => {
             keyword: '',
             category: '',
             source: '',
+            author: '',
             date: '',
             page: 1
         };
 
         // Set cleared filters and update the page
+        setFormState(clearedParams);  // Clear the form inputs
         setSearchParams(clearedParams);
         setCurrentPage(1);
 
@@ -100,7 +126,7 @@ const ArticleList = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setSearchParams({ ...searchParams, [name]: value });
+        setFormState({ ...formState, [name]: value });  // Update formState
     };
 
     // Pagination logic to show limited number of pages
@@ -127,7 +153,7 @@ const ArticleList = () => {
         for (let i = startPage; i <= endPage; i++) {
             pageNumbers.push(
                 <li key={i} className={`page-item ${currentPage === i ? 'active' : ''}`}>
-                    <button className="page-link" onClick={() => fetchArticles(i)}>
+                    <button className="page-link" onClick={() => fetchArticles(i, searchParams)}>
                         {i}
                     </button>
                 </li>
@@ -147,71 +173,90 @@ const ArticleList = () => {
                 <h2 className="text-center mb-4">Search Articles</h2>
                 <form onSubmit={handleSearch}>
                     <div className="row">
-                        <div className="col-md-3 mb-3">
+                        <div className="col-md-2 col-sm-6">
                             <label htmlFor="keyword" className="form-label">Keyword</label>
                             <input
                                 type="text"
                                 className="form-control"
                                 id="keyword"
                                 name="keyword"
-                                value={searchParams.keyword}
+                                value={formState.keyword}
                                 onChange={handleChange}
                                 placeholder="Search by keyword"
                             />
                         </div>
-                        <div className="col-md-3 mb-3">
+                        <div className="col-md-2 col-sm-6">
                             <label htmlFor="category" className="form-label">Category</label>
                             <select
                                 className="form-control"
                                 id="category"
                                 name="category"
-                                value={searchParams.category}
+                                value={formState.category}
                                 onChange={handleChange}
                             >
                                 <option value="">Select Category</option>
-                                {availableCategories.map((category) => (
+                                {Array.isArray(availableCategories) && availableCategories.map((category) => (
                                     <option key={category} value={category}>
                                         {category}
                                     </option>
                                 ))}
                             </select>
                         </div>
-                        <div className="col-md-3 mb-3">
+                        <div className="col-md-2 col-sm-6">
                             <label htmlFor="source" className="form-label">Source</label>
                             <select
                                 className="form-control"
                                 id="source"
                                 name="source"
-                                value={searchParams.source}
+                                value={formState.source}
                                 onChange={handleChange}
                             >
                                 <option value="">Select Source</option>
-                                {availableSources.map((source) => (
+                                {Array.isArray(availableSources) && availableSources.map((source) => (
                                     <option key={source} value={source}>
                                         {source}
                                     </option>
                                 ))}
                             </select>
                         </div>
-                        <div className="col-md-3 mb-3">
+                        <div className="col-md-2 col-sm-6">
+                            <label htmlFor="author" className="form-label">Author</label>
+                            <select
+                                className="form-control"
+                                id="author"
+                                name="author"
+                                value={formState.author}
+                                onChange={handleChange}
+                            >
+                                <option value="">Select Author</option>
+                                {Array.isArray(availableAuthors) && availableAuthors.map((author) => (
+                                    <option key={author} value={author}>
+                                        {author}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="col-md-2 col-sm-6">
                             <label htmlFor="date" className="form-label">Published Date</label>
                             <input
                                 type="date"
                                 className="form-control"
                                 id="date"
                                 name="date"
-                                value={searchParams.date}
+                                value={formState.date}
                                 onChange={handleChange}
                             />
                         </div>
                     </div>
-                    <div className="text-end">
-                        <button type="submit" className="btn btn-primary px-4 py-2 me-2">
-                            {loading ? 'Searching...' : 'Search'}
-                        </button>
-                        <button type="button" className="btn btn-secondary px-4 py-2" onClick={handleClear}>
-                            Clear
-                        </button>
+                    <div className="row mt-3">
+                        <div className="col-md-12 d-flex justify-content-end">
+                            <button type="submit" className="btn btn-primary me-2">
+                                {loading ? 'Searching...' : 'Search'}
+                            </button>
+                            <button type="button" className="btn btn-secondary" onClick={handleClear}>
+                                Clear
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
