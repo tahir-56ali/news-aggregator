@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth';
 
 const ArticleList = () => {
+    const defaultImage = 'https://via.placeholder.com/300x200?text=No+Image';
     const { user } = useAuth();  // Check if the user is logged in
     const [articles, setArticles] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -18,8 +19,10 @@ const ArticleList = () => {
         date: '',
         page: 1, // Set default page as 1
     });
+    const [availableSources, setAvailableSources] = useState([]);
+    const [availableCategories, setAvailableCategories] = useState([]);
 
-    const fetchArticles = async (page = 1) => {
+    const fetchArticles = async (page = 1, params = searchParams) => {
         setLoading(true);
         setError(null);
 
@@ -29,14 +32,14 @@ const ArticleList = () => {
             // Fetch personalized news if user is logged in
             if (user) {
                 response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/user/articles/personalized`, {
-                    params: { ...searchParams, page }, // Include the current page in the request
+                    params: { ...params, page }, // Include the current page in the request
                 });
             } else {
                 response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/articles`, {
-                    params: { ...searchParams, page }, // Include the current page in the request
+                    params: { ...params, page }, // Include the current page in the request
                 });
             }
-            console.log(response.data.data);
+
             setArticles(response.data.data);
             setTotalPages(response.data.last_page);
             setCurrentPage(response.data.current_page);
@@ -49,8 +52,17 @@ const ArticleList = () => {
         }
     };
 
+    const fetchOptions = async () => {
+        const sources = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/sources`);
+        const categories = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/categories`);
+
+        setAvailableSources(sources.data);
+        setAvailableCategories(categories.data);
+    };
+
     useEffect(() => {
         fetchArticles(currentPage); // Fetch articles on component load or page change
+        fetchOptions();
     }, [currentPage]);
 
     const handlePageChange = (url) => {
@@ -65,6 +77,25 @@ const ArticleList = () => {
         e.preventDefault();
         setCurrentPage(1); // Reset to first page when searching
         fetchArticles(1); // Fetch articles with the updated search params from the first page
+    };
+
+    // Handle Clear Filters
+    const handleClear = () => {
+        // Clear filters in searchParams and reset the current page
+        const clearedParams = {
+            keyword: '',
+            category: '',
+            source: '',
+            date: '',
+            page: 1
+        };
+
+        // Set cleared filters and update the page
+        setSearchParams(clearedParams);
+        setCurrentPage(1);
+
+        // Fetch articles without filters by passing the clearedParams directly
+        fetchArticles(1, clearedParams);
     };
 
     const handleChange = (e) => {
@@ -130,30 +161,40 @@ const ArticleList = () => {
                         </div>
                         <div className="col-md-3 mb-3">
                             <label htmlFor="category" className="form-label">Category</label>
-                            <input
-                                type="text"
+                            <select
                                 className="form-control"
                                 id="category"
                                 name="category"
                                 value={searchParams.category}
                                 onChange={handleChange}
-                                placeholder="Search by category"
-                            />
+                            >
+                                <option value="">Select Category</option>
+                                {availableCategories.map((category) => (
+                                    <option key={category} value={category}>
+                                        {category}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                         <div className="col-md-3 mb-3">
                             <label htmlFor="source" className="form-label">Source</label>
-                            <input
-                                type="text"
+                            <select
                                 className="form-control"
                                 id="source"
                                 name="source"
                                 value={searchParams.source}
                                 onChange={handleChange}
-                                placeholder="Search by source"
-                            />
+                            >
+                                <option value="">Select Source</option>
+                                {availableSources.map((source) => (
+                                    <option key={source} value={source}>
+                                        {source}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                         <div className="col-md-3 mb-3">
-                            <label htmlFor="date" className="form-label">Date</label>
+                            <label htmlFor="date" className="form-label">Published Date</label>
                             <input
                                 type="date"
                                 className="form-control"
@@ -164,9 +205,12 @@ const ArticleList = () => {
                             />
                         </div>
                     </div>
-                    <div className="text-center">
-                        <button type="submit" className="btn btn-primary px-4 py-2">
+                    <div className="text-end">
+                        <button type="submit" className="btn btn-primary px-4 py-2 me-2">
                             {loading ? 'Searching...' : 'Search'}
+                        </button>
+                        <button type="button" className="btn btn-secondary px-4 py-2" onClick={handleClear}>
+                            Clear
                         </button>
                     </div>
                 </form>
@@ -175,16 +219,17 @@ const ArticleList = () => {
             {error && <p className="text-danger text-center">{error}</p>}
 
             <div className="row">
-                {loading ? (
-                    <p>Loading articles...</p>
-                ) : articles.length > 0 ? (
+                {loading && <p>Loading articles...</p>}
+                {articles.length > 0 ? (
                     articles.map((article) => (
                         <div className="col-12 col-md-4 mb-3" key={article.id}>
                             <div className="card h-100">
-                                {article.image_url && (
-                                    <img src={article.image_url} className="card-img-top img-fluid"
-                                         alt={article.title}/>
-                                )}
+                                <img
+                                    src={article.image_url || defaultImage}  // Use default image if image_url is empty
+                                    className="card-img-top img-fluid"
+                                    alt={article.title}
+                                    onError={(e) => { e.target.src = defaultImage; }}  // Handle broken images
+                                />
                                 <div className="card-body d-flex flex-column">
                                     <h5 className="card-title">{article.title}</h5>
                                     <p className="card-text">

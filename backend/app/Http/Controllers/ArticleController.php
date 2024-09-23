@@ -37,7 +37,7 @@ class ArticleController extends Controller
     }
 
     // Fetch articles based on user preferences
-    public function getPersonalizedArticles()
+    public function getPersonalizedArticles(Request $request)
     {
         $user = Auth::user();
         $preferences = $user->preferences; // Get user preferences
@@ -67,6 +67,22 @@ class ArticleController extends Controller
 
         if ($preferred_authors) {
             $articles->orWhereIn('author', $preferred_authors);
+        }
+
+        if (!empty($request->get('keyword'))) {
+            $articles->where('title', 'like', '%' . $request->keyword . '%');
+        }
+
+        if (!empty($request->get('category'))) {
+            $articles->where('category', $request->category);
+        }
+
+        if (!empty($request->get('source'))) {
+            $articles->where('source', $request->source);
+        }
+
+        if (!empty($request->get('date'))) {
+            $articles->whereDate('published_at', $request->date);
         }
 
         // Paginate the results (12 results per page by default)

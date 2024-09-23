@@ -19,9 +19,9 @@ const Preferences = () => {
     useEffect(() => {
         // Fetch available options for sources, categories, and authors
         const fetchOptions = async () => {
-            const sources = await axios.get('http://localhost:8080/api/sources');
-            const categories = await axios.get('http://localhost:8080/api/categories');
-            const authors = await axios.get('http://localhost:8080/api/authors');
+            const sources = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/sources`);
+            const categories = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/categories`);
+            const authors = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/authors`);
 
             setAvailableSources(sources.data);
             setAvailableCategories(categories.data);
@@ -29,7 +29,7 @@ const Preferences = () => {
         };
 
         const fetchPreferences = async () => {
-            const response = await axios.get('http://localhost:8080/api/user/preferences');
+            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/user/preferences`);
             setPreferences(response.data);
         };
 
@@ -54,7 +54,7 @@ const Preferences = () => {
         setLoading(true);
         try {
             axios.defaults.headers.common['X-XSRF-TOKEN'] = Cookies.get('XSRF-TOKEN');
-            await axios.post('http://localhost:8080/api/user/preferences', preferences);
+            await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user/preferences`, preferences);
             setMessage('Preferences saved successfully!');
         } catch (err) {
             setMessage('Error saving preferences.');
