@@ -237,7 +237,7 @@ const ArticleList = () => {
                             </select>
                         </div>
                         <div className="col-md-2 col-sm-6">
-                            <label htmlFor="date" className="form-label">Published Date</label>
+                            <label htmlFor="date" className="form-label">Date</label>
                             <input
                                 type="date"
                                 className="form-control"
